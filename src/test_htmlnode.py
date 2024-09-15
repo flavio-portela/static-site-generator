@@ -11,6 +11,6 @@ class TestHtmlNode(unittest.TestCase):
             node.props_to_html(), ' href="https://www.google.com" target="_blank"'
         )
 
-        # returns None if there are no props
+        # return empty string if there are no props
         node = HTMLNode()
-        self.assertEqual(node.props_to_html(), None)
+        self.assertEqual(node.props_to_html(), "")
