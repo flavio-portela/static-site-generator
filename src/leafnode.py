@@ -1,11 +1,18 @@
 from htmlnode import HTMLNode
+from typing import Union
+
 
 class LeafNode(HTMLNode):
-    def __init__(self, tag=None, value=None, props: dict | None = None) -> None:
-        super().__init__(tag=tag, value=value,  props=props)
+    def __init__(
+        self,
+        tag: Union[str, None] = None,
+        value: str = "",
+        props: Union[dict, None] = None,
+    ) -> None:
+        super().__init__(tag=tag, value=value, props=props)
 
     def to_html(self):
-        if not self.value:
+        if self.value == "":
             raise ValueError("value should be provided")
         if not self.tag:
             return self.value

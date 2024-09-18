@@ -1,8 +1,18 @@
 from functools import reduce
+from typing import Union
 
 
-class HTMLNode:
-    def __init__(self, tag=None, value=None, children=None, props: dict | None=None) -> None:
+
+ChildrenType = list['HTMLNode']
+
+class HTMLNode():
+    def __init__(
+        self,
+        tag: Union[str, None] = None,
+        value: Union[str, None] = None,
+        children: Union[ChildrenType, None]= None,
+        props: Union[dict, None] = None,
+    ) -> None:
         self.tag = tag
         self.value = value
         self.children = children
