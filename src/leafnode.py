@@ -7,7 +7,7 @@ class LeafNode(HTMLNode):
         self,
         tag: Union[str, None] = None,
         value: str = "",
-        props: Union[dict, None] = None,
+        props: Union[dict[str, str | None], None] = None,
     ) -> None:
         super().__init__(tag=tag, value=value, props=props)
 
