@@ -1,5 +1,6 @@
 from leafnode import LeafNode
 from enum import Enum
+from typing import Dict
 
 TextType = Enum("TextType", ["text", "bold", "italic", "code", "link", "image"])
 
@@ -39,3 +40,49 @@ def text_node_to_html_node(text_node: TextNode):
             return LeafNode(
                 tag="img", value="", props={"src": text_node.url, "alt": text_node.text}
             )
+
+
+# map delimiter to TextType
+DelimiterType = Enum("DelimiterType", ["`", "*", "**"])
+
+delimiter_to_text_type: Dict[str, TextType] = {
+    "`": TextType.code,
+    "*": TextType.italic,
+    "**": TextType.bold,
+}
+
+
+# Converts a list of nodes with markdown text into htmml nodes
+def split_node_delimeter(
+    old_nodes: list[TextNode], delimiter: str, text_type: TextType
+):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.text:
+            # nothing to parse, include node as is
+            new_nodes.append(node)
+            continue
+        if delimiter in node.text:
+            start, end = -1, -1
+            for index, char in enumerate(node.text):
+                if char == delimiter and start == -1:
+                    start = index
+                    continue
+                if char == delimiter and end == -1:
+                    end = index
+                    break
+            if start == -1 or end == -1:
+                raise ValueError("Invalid syintax")
+            node_to_convert = node.text[start : end + 1].replace(
+                delimiter, ""
+            )  # remove the delimiter
+            splits = [
+                TextNode(text=node.text[0:start], text_type=TextType.text),
+                TextNode(
+                    text=node_to_convert, text_type=delimiter_to_text_type[delimiter]
+                ),
+                TextNode(text=node.text[end + 1 :], text_type=TextType.text),
+            ]
+            new_nodes.extend(splits)
+
+    return new_nodes
