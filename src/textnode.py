@@ -1,6 +1,7 @@
 from leafnode import LeafNode
 from enum import Enum
 from typing import Dict
+import re
 
 TextType = Enum("TextType", ["text", "bold", "italic", "code", "link", "image"])
 
@@ -53,9 +54,7 @@ delimiter_to_text_type: Dict[str, TextType] = {
 
 
 # Converts a list of nodes with markdown text into htmml nodes
-def split_node_delimeter(
-    old_nodes: list[TextNode], delimiter: str
-):
+def split_node_delimeter(old_nodes: list[TextNode], delimiter: str):
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.text:
@@ -84,5 +83,26 @@ def split_node_delimeter(
                 TextNode(text=node.text[end + 1 :], text_type=TextType.text),
             ]
             new_nodes.extend(splits)
-
     return new_nodes
+
+
+def extract_markdown_images(text: str):
+    """
+    Example:
+    text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+    print(extract_markdown_images(text))
+    # [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+    """
+    matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+    return matches
+
+
+def extract_markdown_link(text: str):
+    """
+    Example:
+    text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    print(extract_markdown_links(text))
+    # [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+    """
+    matches = re.findall(r"\[(.*?)\]\((.*?)\)", text)
+    return matches
