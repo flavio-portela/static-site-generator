@@ -86,6 +86,37 @@ def split_node_delimeter(old_nodes: list[TextNode], delimiter: str):
     return new_nodes
 
 
+def split_nodes_images(old_nodes: list[TextNode]):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.text:
+            matches = extract_markdown_images(node.text)
+            if len(matches) > 0:
+                splitted_node = []
+                text_to_search = node.text
+                for match in matches:
+                    image_alt, image_link = match
+                    sections = text_to_search.split(f"![{image_alt}]({image_link})", 1)
+                    if sections[0]:
+                        splitted_node.append(TextNode(sections[0], TextType.text))
+                    splitted_node.append(
+                        TextNode(image_alt, TextType.image, image_link)
+                    )
+                    if len(matches) == 1 and sections[1]:
+                        splitted_node.append(TextNode(sections[1], TextType.text))
+                    text_to_search = sections[1]
+                new_nodes.extend(splitted_node)
+            else:
+                new_nodes.append(node)
+        else:
+            new_nodes.append(node)
+    return new_nodes
+
+
+def split_nodes_link(old_nodes: list[TextNode]):
+    pass
+
+
 def extract_markdown_images(text: str):
     """
     Example:

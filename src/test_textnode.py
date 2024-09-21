@@ -5,8 +5,9 @@ from textnode import (
     TextType,
     extract_markdown_images,
     extract_markdown_link,
-    text_node_to_html_node,
     split_node_delimeter,
+    text_node_to_html_node,
+    split_nodes_images,
 )
 
 
@@ -15,7 +16,7 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is a text node", TextType.bold)
         node2 = TextNode("This is a text node", TextType.bold)
         self.assertEqual(node, node2)
-        # equal with url
+        # equal with URL
         node3 = TextNode("This is a text node", TextType.bold, "https://url.com")
         node4 = TextNode("This is a text node", TextType.bold, "https://url.com")
         self.assertEqual(node3, node4)
@@ -29,7 +30,7 @@ class TestTextNode(unittest.TestCase):
         node3 = TextNode("This is a text node", TextType.bold)
         node4 = TextNode("This is a text node", TextType.italic)
         self.assertNotEqual(node3, node4)
-        # test equality when url is different
+        # test equality when URL is different
         node5 = TextNode("This is a text node", TextType.bold, "https://url1.com")
         node6 = TextNode("This is a text node", TextType.bold, "https://url2.com")
         self.assertNotEqual(node5, node6)
@@ -94,6 +95,8 @@ class TestExtractMarkdown(unittest.TestCase):
             ],
             matches,
         )
+        matches = extract_markdown_link("This is a text without matches")
+        self.assertEqual([], matches)
 
     def test_extract_markdown_links(self):
         text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
@@ -104,6 +107,78 @@ class TestExtractMarkdown(unittest.TestCase):
                 ("to youtube", "https://www.youtube.com/@bootdotdev"),
             ],
             matches,
+        )
+        matches = extract_markdown_link("This is a text without matches")
+        self.assertEqual([], matches)
+
+
+class TextSplitNodeImages(unittest.TestCase):
+    def test_split_node_images(self):
+        text = "This is text with a link ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        node = TextNode(
+            text,
+            TextType.text,
+        )
+        new_nodes = split_nodes_images([node])
+
+        self.assertEqual(
+            [
+                TextNode("This is text with a link ", TextType.text),
+                TextNode(
+                    "rick roll", TextType.image, "https://i.imgur.com/aKaOqIh.gif"
+                ),
+                TextNode(" and ", TextType.text),
+                TextNode("obi wan", TextType.image, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+            new_nodes,
+        )
+        # Test with a single link
+        text = "This is text with a link ![rick roll](https://i.imgur.com/aKaOqIh.gif)"
+        node = TextNode(
+            text,
+            TextType.text,
+        )
+        new_nodes = split_nodes_images([node])
+
+        self.assertEqual(
+            [
+                TextNode("This is text with a link ", TextType.text),
+                TextNode(
+                    "rick roll", TextType.image, "https://i.imgur.com/aKaOqIh.gif"
+                ),
+            ],
+            new_nodes,
+        )
+        # Test without link
+        text = "This is text with a link"
+        node = TextNode(
+            text,
+            TextType.text,
+        )
+        new_nodes = split_nodes_images([node])
+
+        self.assertEqual(
+            [
+                TextNode("This is text with a link", TextType.text),
+            ],
+            new_nodes,
+        )
+        # Test with a link at the beginning
+        text = "![rick roll](https://i.imgur.com/aKaOqIh.gif) This is text with a link"
+        node = TextNode(
+            text,
+            TextType.text,
+        )
+        new_nodes = split_nodes_images([node])
+
+        self.assertEqual(
+            [
+                TextNode(
+                    "rick roll", TextType.image, "https://i.imgur.com/aKaOqIh.gif"
+                ),
+                TextNode(" This is text with a link", TextType.text),
+            ],
+            new_nodes,
         )
 
 
