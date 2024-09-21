@@ -65,7 +65,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         node = TextNode(
             "This is text with a `code block` word.", text_type=TextType.text
         )
-        new_nodes = split_node_delimeter([node], "`", TextType.text)
+        new_nodes = split_node_delimeter([node], "`")
         self.assertEqual(
             new_nodes,
             [

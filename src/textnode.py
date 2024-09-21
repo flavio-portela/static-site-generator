@@ -54,7 +54,7 @@ delimiter_to_text_type: Dict[str, TextType] = {
 
 # Converts a list of nodes with markdown text into htmml nodes
 def split_node_delimeter(
-    old_nodes: list[TextNode], delimiter: str, text_type: TextType
+    old_nodes: list[TextNode], delimiter: str
 ):
     new_nodes = []
     for node in old_nodes:
