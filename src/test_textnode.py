@@ -6,6 +6,7 @@ from textnode import (
     extract_markdown_images,
     extract_markdown_link,
     split_node_delimeter,
+    split_nodes_link,
     text_node_to_html_node,
     split_nodes_images,
 )
@@ -112,7 +113,24 @@ class TestExtractMarkdown(unittest.TestCase):
         self.assertEqual([], matches)
 
 
-class TextSplitNodeImages(unittest.TestCase):
+class TestSplitNodeImages(unittest.TestCase):
+    def test_split_node_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+
+        node = TextNode(text, TextType.text)
+        new_nodes = split_nodes_link([node])
+        self.assertEqual(
+            [
+                TextNode("This is text with a link ", TextType.text),
+                TextNode("to boot dev", TextType.link, "https://www.boot.dev"),
+                TextNode(" and ", TextType.text),
+                TextNode(
+                    "to youtube", TextType.link, "https://www.youtube.com/@bootdotdev"
+                ),
+            ],
+            new_nodes,
+        )
+
     def test_split_node_images(self):
         text = "This is text with a link ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
         node = TextNode(

@@ -114,7 +114,28 @@ def split_nodes_images(old_nodes: list[TextNode]):
 
 
 def split_nodes_link(old_nodes: list[TextNode]):
-    pass
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.text:
+            matches = extract_markdown_link(node.text)
+            if len(matches) > 0:
+                splitted_node = []
+                text_to_search = node.text
+                for match in matches:
+                    link_alt, link_url = match
+                    sections = text_to_search.split(f"[{link_alt}]({link_url})", 1)
+                    if sections[0]:
+                        splitted_node.append(TextNode(sections[0], TextType.text))
+                    splitted_node.append(TextNode(link_alt, TextType.link, link_url))
+                    if len(matches) == 1 and sections[1]:
+                        splitted_node.append(TextNode(sections[1], TextType.text))
+                    text_to_search = sections[1]
+                new_nodes.extend(splitted_node)
+            else:
+                new_nodes.append(node)
+        else:
+            new_nodes.append(node)
+    return new_nodes
 
 
 def extract_markdown_images(text: str):
